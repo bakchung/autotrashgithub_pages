@@ -1,20 +1,124 @@
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
-    // 현재 페이지 URL 확인
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    
-    // 모든 네비게이션 버튼 찾기
-    const navButtons = document.querySelectorAll('.nav-button');
-    
-    // 현재 페이지에 맞는 버튼 활성화
-    navButtons.forEach(button => {
-        const href = button.getAttribute('href');
-        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
+    // 현재 페이지 파일명 추출 함수
+    function getCurrentPageFile() {
+        const pathname = window.location.pathname;
+        let fileName = pathname.split('/').pop();
+        
+        // 빈 경로나 루트 경로인 경우 index.html로 처리
+        if (!fileName || fileName === '' || fileName === '/') {
+            fileName = 'index.html';
         }
-    });
+        
+        return fileName.toLowerCase();
+    }
+    
+    // href에서 파일명 추출 함수
+    function getHrefFile(href) {
+        if (!href) return '';
+        // 상대 경로에서 파일명만 추출
+        const hrefFile = href.split('/').pop();
+        // 쿼리나 해시 제거
+        return hrefFile.split('?')[0].split('#')[0].toLowerCase();
+    }
+    
+    // 링크가 활성화되어야 하는지 확인하는 함수
+    function shouldBeActive(href) {
+        const currentFile = getCurrentPageFile();
+        const hrefFile = getHrefFile(href);
+        
+        // 정확히 일치하는 경우
+        if (hrefFile === currentFile) {
+            return true;
+        }
+        
+        // index.html 처리
+        if (currentFile === 'index.html' && (hrefFile === 'index.html' || hrefFile === '')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // 네비게이션 활성화 함수 (공통)
+    function activateNavigation(links) {
+        if (!links || links.length === 0) return;
+        
+        links.forEach(link => {
+            // 먼저 모든 active 클래스 제거
+            link.classList.remove('active');
+            
+            const href = link.getAttribute('href');
+            if (!href) return;
+            
+            if (shouldBeActive(href)) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    // 현재 페이지 파일명
+    const currentFile = getCurrentPageFile();
+    
+    // 푸터 네비게이션 링크 활성화
+    const footerNavLinks = document.querySelectorAll('.footer-nav a');
+    if (footerNavLinks && footerNavLinks.length > 0) {
+        footerNavLinks.forEach(link => {
+            // 먼저 모든 active 클래스 제거
+            link.classList.remove('active');
+            
+            const href = link.getAttribute('href');
+            if (!href) return;
+            
+            const hrefFile = getHrefFile(href);
+            
+            // 현재 페이지와 비교
+            let isActive = false;
+            
+            // 정확히 일치하는 경우
+            if (hrefFile === currentFile) {
+                isActive = true;
+            }
+            // index.html 처리
+            else if (currentFile === 'index.html' && (hrefFile === 'index.html' || hrefFile === '')) {
+                isActive = true;
+            }
+            
+            if (isActive) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    // 상단 네비게이션 버튼 활성화 (푸터와 동일한 로직)
+    const navButtons = document.querySelectorAll('.nav-button');
+    if (navButtons && navButtons.length > 0) {
+        navButtons.forEach(button => {
+            // 먼저 모든 active 클래스 제거
+            button.classList.remove('active');
+            
+            const href = button.getAttribute('href');
+            if (!href) return;
+            
+            const hrefFile = getHrefFile(href);
+            
+            // 현재 페이지와 비교
+            let isActive = false;
+            
+            // 정확히 일치하는 경우
+            if (hrefFile === currentFile) {
+                isActive = true;
+            }
+            // index.html 처리
+            else if (currentFile === 'index.html' && (hrefFile === 'index.html' || hrefFile === '')) {
+                isActive = true;
+            }
+            
+            if (isActive) {
+                button.classList.add('active');
+            }
+        });
+    }
 
     // 메인 페이지에서 스크롤에 따라 헤더 표시/숨김
     const isMainPage = document.body.classList.contains('main-page');
